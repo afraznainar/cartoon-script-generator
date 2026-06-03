@@ -50,8 +50,8 @@ supabase link --project-ref YOUR_PROJECT_REF
 
 # Set ALL required secrets (the Edge Function needs these to call Anthropic and save to DB)
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-your-key-here
-supabase secrets set SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-supabase secrets set SUPABASE_ANON_KEY=your-anon-key-here
+supabase secrets set PROJECT_URL=https://YOUR_PROJECT_REF.supabase.co
+supabase secrets set PUBLIC_ANON_KEY=your-anon-key-here
 
 # Deploy the function
 supabase functions deploy generate-script
@@ -174,11 +174,9 @@ cartoon-video-script/
 
 | Variable | Where | Purpose |
 |----------|-------|---------|
-| Variable | Where | Purpose |
-|----------|-------|---------|
 | `ANTHROPIC_API_KEY` | Supabase Edge Function secret | Claude API access |
-| `SUPABASE_URL` | Supabase Edge Function secret + Browser localStorage | Supabase project URL |
-| `SUPABASE_ANON_KEY` | Supabase Edge Function secret + Browser localStorage | Supabase anon access |
+| `PROJECT_URL` | Supabase Edge Function secret + Browser localStorage | Supabase project URL |
+| `PUBLIC_ANON_KEY` | Supabase Edge Function secret + Browser localStorage | Supabase anon access |
 
 ---
 
@@ -206,10 +204,10 @@ supabase functions deploy generate-script
 ```
 
 **Edge Function not saving to database**
-→ Check that `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set as secrets:
+→ Check that `PROJECT_URL` and `PUBLIC_ANON_KEY` are set as secrets:
 ```bash
-supabase secrets set SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-supabase secrets set SUPABASE_ANON_KEY=your-anon-key
+supabase secrets set PROJECT_URL=https://YOUR_PROJECT_REF.supabase.co
+supabase secrets set PUBLIC_ANON_KEY=your-anon-key
 supabase functions deploy generate-script
 ```
 
