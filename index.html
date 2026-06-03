@@ -146,26 +146,31 @@ h1 span{color:var(--sun)}
   <!-- Settings Modal -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal">
-      <h2>⚙️ Supabase Setup</h2>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.2rem;line-height:1.5">
-        Enter your Supabase project credentials. Find these in your 
-        <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--sky);font-weight:700">Supabase Dashboard</a> 
-        under Project Settings → API.
-      </p>
+      <h2>⚙️ Settings</h2>
+      
       <div class="fld">
-        <label>Supabase URL</label>
-        <input id="supaUrl" type="text" placeholder="https://xxxxx.supabase.co" />
-        <span class="hint">Your project URL, e.g. https://abc123.supabase.co</span>
+        <label>🔑 Anthropic API Key</label>
+        <input id="anthropicKey" type="password" placeholder="sk-ant-xxxxxxxxxxxx..." />
+        <span class="hint">From <a href="https://console.anthropic.com" target="_blank" style="color:var(--sky)">console.anthropic.com</a> — your key, your billing</span>
       </div>
-      <div class="fld">
-        <label>Supabase Anon Key</label>
-        <input id="supaKey" type="text" placeholder="eyJhbGciOiJIUzI1NiIs..." />
-        <span class="hint">Your anon/public key (safe for client-side use)</span>
-      </div>
-      <div class="fld">
-        <label>Edge Function URL</label>
-        <input id="funcUrl" type="text" placeholder="https://xxxxx.supabase.co/functions/v1/generate-script" />
-        <span class="hint">Usually https://[PROJECT_REF].supabase.co/functions/v1/generate-script</span>
+
+      <div style="border-top:1px solid var(--border);margin:1rem 0;padding-top:1rem">
+        <p style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.05em">Supabase (required for script history)</p>
+        <div class="fld">
+          <label>Supabase URL</label>
+          <input id="supaUrl" type="text" placeholder="https://xxxxx.supabase.co" />
+          <span class="hint">Your project URL, e.g. https://abc123.supabase.co</span>
+        </div>
+        <div class="fld">
+          <label>Supabase Anon Key</label>
+          <input id="supaKey" type="text" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+          <span class="hint">Your anon/public key (safe for client-side use)</span>
+        </div>
+        <div class="fld">
+          <label>Edge Function URL</label>
+          <input id="funcUrl" type="text" placeholder="https://xxxxx.supabase.co/functions/v1/generate-script" />
+          <span class="hint">Usually https://[PROJECT_REF].supabase.co/functions/v1/generate-script</span>
+        </div>
       </div>
       <div class="mod-actions">
         <button class="btn-sec" onclick="closeSettings()">Cancel</button>
@@ -221,13 +226,15 @@ h1 span{color:var(--sun)}
 <script>
 // ─── Configuration ─────────────────────────────────────────────────────────
 const CFG = {
+  get anthropicKey() { return localStorage.getItem('anthropicKey') || ''; },
+  set anthropicKey(v) { localStorage.setItem('anthropicKey', v); },
   get supaUrl() { return localStorage.getItem('supaUrl') || ''; },
   set supaUrl(v) { localStorage.setItem('supaUrl', v); },
   get supaKey() { return localStorage.getItem('supaKey') || ''; },
   set supaKey(v) { localStorage.setItem('supaKey', v); },
   get funcUrl() { return localStorage.getItem('funcUrl') || ''; },
   set funcUrl(v) { localStorage.setItem('funcUrl', v); },
-  get configured() { return !!(this.supaUrl && this.supaKey && this.funcUrl); }
+  get configured() { return !!(this.anthropicKey && this.funcUrl); }
 };
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -254,6 +261,7 @@ function timeAgo(dateStr){
 
 // ─── Settings Modal ────────────────────────────────────────────────────────
 function openSettings(){
+  document.getElementById('anthropicKey').value = CFG.anthropicKey;
   document.getElementById('supaUrl').value = CFG.supaUrl;
   document.getElementById('supaKey').value = CFG.supaKey;
   document.getElementById('funcUrl').value = CFG.funcUrl;
@@ -265,6 +273,7 @@ function closeSettings(){
 }
 
 function saveSettings(){
+  CFG.anthropicKey = document.getElementById('anthropicKey').value.trim();
   CFG.supaUrl = document.getElementById('supaUrl').value.trim();
   CFG.supaKey = document.getElementById('supaKey').value.trim();
   CFG.funcUrl = document.getElementById('funcUrl').value.trim();
@@ -507,7 +516,7 @@ async function gen(){
 
   if(!CFG.configured){
     const eb = document.getElementById('err');
-    eb.textContent = '⚠ Please configure your Supabase connection first (click the ⚙️ gear icon).';
+    eb.textContent = '⚠ Please configure your API key first (click the ⚙️ gear icon).';
     eb.classList.add('on');
     openSettings();
     return;
@@ -525,7 +534,7 @@ async function gen(){
     const res = await fetch(CFG.funcUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic: kw })
+      body: JSON.stringify({ topic: kw, apiKey: CFG.anthropicKey })
     });
 
     const json = await res.json();

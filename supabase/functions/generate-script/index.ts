@@ -47,18 +47,16 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { topic } = await req.json();
+    const { topic, apiKey } = await req.json();
     if (!topic || typeof topic !== "string" || topic.trim().length === 0) {
       return new Response(JSON.stringify({ error: "Topic is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: "Server misconfigured: missing API key" }), {
-        status: 500,
+    if (!apiKey || typeof apiKey !== "string" || !apiKey.startsWith("sk-ant-")) {
+      return new Response(JSON.stringify({ error: "A valid Anthropic API key is required. Add yours in the ⚙️ settings." }), {
+        status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
