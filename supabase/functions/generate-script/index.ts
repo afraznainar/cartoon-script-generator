@@ -140,8 +140,8 @@ Required fields (keep every string SHORT):
     }
 
     // ── Save to Supabase DB ─────────────────────────────────────────────
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseUrl = Deno.env.get("PROJECT_URL");
+    const supabaseKey = Deno.env.get("PUBLIC_ANON_KEY");
 
     if (supabaseUrl && supabaseKey) {
       const supabase = createClient(supabaseUrl, supabaseKey);
