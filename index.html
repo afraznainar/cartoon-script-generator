@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cartoon Video Script Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<style>
+:root{--sun:#FFB800;--sun-lt:#FFF3CC;--mint:#10B981;--mint-lt:#ECFDF5;--sky:#3B82F6;--purple:#7C3AED;--purple-lt:#F5F3FF;--coral-lt:#FFF0F0;--bg:#FAFAF8;--card:#fff;--border:rgba(0,0,0,.08);--text:#1A1A1A;--muted:#6B7280;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:800px;margin:0 auto;padding:2rem 1.25rem 4rem}
+/* hero */
+.hero{text-align:center;padding:2.5rem 1rem 2rem;margin-bottom:1.5rem}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--sun-lt);color:#92400E;font-size:11px;font-weight:800;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1rem}
+h1{font-size:clamp(22px,5vw,34px);font-weight:900;line-height:1.2;margin-bottom:.4rem}
+h1 span{color:var(--sun)}
+.sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:460px;margin:0 auto 1.8rem}
+.irow{display:flex;gap:10px;max-width:540px;margin:0 auto}
+.irow input{flex:1;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;padding:13px 16px;border:2px solid var(--border);border-radius:var(--r);background:var(--card);color:var(--text);outline:none;transition:border-color .2s}
+.irow input:focus{border-color:var(--sun)}
+.irow input::placeholder{color:var(--muted);font-weight:400}
+.gbtn{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:13px 20px;background:var(--sun);color:#1A1A1A;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:transform .15s,background .15s}
+.gbtn:hover{background:#FFC800;transform:scale(1.02)}
+.gbtn:active{transform:scale(.98)}
+.gbtn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:.9rem}
+.chip{font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--sun);color:var(--text);background:var(--sun-lt)}
+/* loading */
+.load{display:none;flex-direction:column;align-items:center;padding:3rem 1rem;gap:.9rem}
+.load.on{display:flex}
+.dots{display:flex;gap:8px}
+.dots span{width:10px;height:10px;border-radius:50%;animation:bop 1s infinite}
+.dots span:nth-child(1){background:var(--sun);animation-delay:0s}
+.dots span:nth-child(2){background:#FF6B6B;animation-delay:.15s}
+.dots span:nth-child(3){background:var(--sky);animation-delay:.3s}
+.dots span:nth-child(4){background:var(--mint);animation-delay:.45s}
+@keyframes bop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}}
+.ltxt{font-size:13px;font-weight:700;color:var(--muted)}
+.pbar-wrap{width:240px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.pbar{height:100%;background:var(--sun);border-radius:99px;transition:width .6s ease;width:0}
+/* output */
+.out{display:none}
+.out.on{display:block;animation:up .35s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* section label */
+.slbl{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin:1.8rem 0 .7rem;display:flex;align-items:center;gap:8px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+/* cards */
+.ov-card{background:linear-gradient(135deg,#FFF9E6,#FFF0CC);border:1.5px solid #FFD166;border-radius:var(--r);padding:1.2rem 1.4rem}
+.ov-title{font-size:21px;font-weight:900;color:#92400E;line-height:1.2;margin-bottom:6px}
+.ov-tag{font-size:13px;color:#B45309;font-weight:600;margin-bottom:10px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pl{font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px}
+.pa{background:#FDE68A;color:#78350F}.pb{background:#BBF7D0;color:#064E3B}
+.pc{background:#BFDBFE;color:#1E3A5F}.pd{background:#DDD6FE;color:#3B0764}
+.pe{background:#FECACA;color:#7F1D1D}
+.char-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;display:flex;gap:1rem;align-items:flex-start}
+.avatar{width:50px;height:50px;border-radius:50%;background:var(--sun-lt);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.cname{font-size:15px;font-weight:800;margin-bottom:3px}
+.cdesc{font-size:13px;color:var(--muted);line-height:1.6}
+.sbadges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sbdg{font-size:11px;font-weight:700;padding:4px 11px;border-radius:99px;background:var(--purple-lt);color:var(--purple)}
+.sblk{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.sblk-h{padding:9px 15px;border-bottom:1px solid var(--border);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dv{background:#0369A1}.dc{background:#FFB800}.db{background:#047857}.do{background:#9F1239}.di{background:#7C3AED}
+.lv{color:#0369A1}.lc{color:#B45309}.lb{color:#047857}.lo{color:#9F1239}.li{color:#7C3AED}
+.lyrics{padding:13px 15px;font-size:14px;font-weight:600;line-height:2;white-space:pre-line}
+/* scene cards */
+.sc-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:9px;transition:border-color .2s}
+.sc-card:hover{border-color:rgba(0,0,0,.15)}
+.sc-head{padding:9px 13px;background:#FAFAF8;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sc-num{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.sc-tw{flex:1}
+.sc-t{font-size:13px;font-weight:800}
+.sc-ts{font-size:11px;color:var(--muted);margin-top:1px}
+.cbtn{font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;padding:4px 11px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cbtn:hover{background:#F3F4F6;color:var(--text)}
+.cbtn.ok{background:var(--mint-lt);color:var(--mint);border-color:var(--mint)}
+.sc-prompt{padding:11px 13px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;color:#374151}
+.sc-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 13px 11px}
+.stag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.tcam{background:#DBEAFE;color:#1E3A5F}.tmood{background:#D1FAE5;color:#064E3B}
+.tmotion{background:#FEF3C7;color:#78350F}.tkey{background:#FCE7F3;color:#831843}
+/* anchor */
+.anc{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:var(--r);padding:1rem 1.25rem}
+.anc-lbl{font-size:11px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.anc-txt{font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;color:#78350F}
+/* thumb */
+.th-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.th-head{padding:9px 13px;background:#FAFAF8;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.th-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.th-body{padding:13px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;color:#374151}
+/* error / regen */
+.errbox{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--r);padding:1.2rem 1.4rem;font-size:13px;font-weight:700;color:#991B1B;display:none}
+.errbox.on{display:block}
+.regen{display:flex;justify-content:center;margin-top:2rem}
+.rbtn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:11px 22px;background:transparent;border:2px solid var(--border);border-radius:var(--r);cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:7px;transition:all .15s}
+.rbtn:hover{border-color:var(--sun);color:var(--text);background:var(--sun-lt)}
+/* settings gear */
+.settings-bar{display:flex;justify-content:flex-end;margin-bottom:.5rem}
+.gear{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.gear:hover{border-color:var(--sun);color:var(--text);background:var(--sun-lt)}
+/* settings modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;animation:fade .2s}
+.modal-overlay.on{display:flex}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border-radius:var(--r);padding:2rem;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal h2{font-size:18px;font-weight:900;margin-bottom:1.2rem}
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.fld label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fld input{font-family:'Nunito',sans-serif;font-size:14px;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s}
+.fld input:focus{border-color:var(--sky)}
+.fld .hint{font-size:11px;color:var(--muted)}
+.mod-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem}
+.mod-actions button{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:9px 18px;border-radius:10px;cursor:pointer;transition:all .15s}
+.btn-pri{background:var(--sun);color:#1A1A1A;border:none}
+.btn-pri:hover{background:#FFC800}
+.btn-sec{background:transparent;color:var(--muted);border:1.5px solid var(--border)}
+.btn-sec:hover{border-color:var(--text);color:var(--text)}
+/* history panel */
+.hist{display:none;margin-bottom:1.5rem}
+.hist.on{display:block;animation:up .35s ease}
+.hist-item{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:.9rem 1.1rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.hist-item:hover{border-color:var(--sun);background:var(--sun-lt)}
+.hist-icon{font-size:20px;flex-shrink:0}
+.hist-info{flex:1}
+.hist-title{font-size:13px;font-weight:800}
+.hist-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.hist-load{text-align:center;font-size:13px;color:var(--muted);padding:1rem}
+/* setup prompt */
+.setup-prompt{text-align:center;padding:2rem 1rem;background:var(--card);border:1.5px dashed var(--border);border-radius:var(--r);margin-bottom:1.5rem}
+.setup-prompt h3{font-size:16px;font-weight:800;margin-bottom:8px}
+.setup-prompt p{font-size:13px;color:var(--muted);margin-bottom:1rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Settings gear -->
+  <div class="settings-bar">
+    <button class="gear" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <h2>⚙️ Supabase Setup</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.2rem;line-height:1.5">
+        Enter your Supabase project credentials. Find these in your 
+        <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--sky);font-weight:700">Supabase Dashboard</a> 
+        under Project Settings → API.
+      </p>
+      <div class="fld">
+        <label>Supabase URL</label>
+        <input id="supaUrl" type="text" placeholder="https://xxxxx.supabase.co" />
+        <span class="hint">Your project URL, e.g. https://abc123.supabase.co</span>
+      </div>
+      <div class="fld">
+        <label>Supabase Anon Key</label>
+        <input id="supaKey" type="text" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+        <span class="hint">Your anon/public key (safe for client-side use)</span>
+      </div>
+      <div class="fld">
+        <label>Edge Function URL</label>
+        <input id="funcUrl" type="text" placeholder="https://xxxxx.supabase.co/functions/v1/generate-script" />
+        <span class="hint">Usually https://[PROJECT_REF].supabase.co/functions/v1/generate-script</span>
+      </div>
+      <div class="mod-actions">
+        <button class="btn-sec" onclick="closeSettings()">Cancel</button>
+        <button class="btn-pri" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="badge">★ AI Script Generator</div>
+    <h1>Cartoon Rhythm <span>Video</span> Script</h1>
+    <p class="sub">Type any keyword — AI writes your full Cocomelon-style script with lyrics and copy-ready AI video prompts.</p>
+    <div class="irow">
+      <input id="kw" type="text" placeholder="e.g. bath time, counting, vegetables…" maxlength="60"/>
+      <button class="gbtn" id="gbtn" onclick="gen()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 3l14 9-14 9V3z"/></svg>Generate
+      </button>
+    </div>
+    <div class="chips">
+      <span class="chip" onclick="sk('bath time')">🛁 Bath time</span>
+      <span class="chip" onclick="sk('counting 1 to 10')">🔢 Counting 1–10</span>
+      <span class="chip" onclick="sk('rainbow colors')">🌈 Rainbow colors</span>
+      <span class="chip" onclick="sk('brush teeth')">🦷 Brush teeth</span>
+      <span class="chip" onclick="sk('eating vegetables')">🥦 Vegetables</span>
+      <span class="chip" onclick="sk('bedtime')">🌙 Bedtime</span>
+      <span class="chip" onclick="sk('farm animals')">🐄 Farm animals</span>
+    </div>
+  </div>
+
+  <!-- Setup prompt (shown when Supabase is not configured) -->
+  <div class="setup-prompt" id="setupPrompt">
+    <h3>🔗 Connect to Supabase</h3>
+    <p>Click the ⚙️ gear icon above to enter your Supabase project credentials before generating scripts.</p>
+    <button class="gbtn" style="margin:0 auto" onclick="openSettings()">⚙️ Open Settings</button>
+  </div>
+
+  <!-- Setup prompt (shown when no Anthropic key configured server-side) -->
+  <div class="errbox" id="err"></div>
+  <div class="load" id="load">
+    <div class="dots"><span></span><span></span><span></span><span></span></div>
+    <div class="ltxt" id="ltxt">Writing your script…</div>
+    <div class="pbar-wrap"><div class="pbar" id="pbar"></div></div>
+  </div>
+
+  <!-- Script History -->
+  <div class="hist" id="hist"></div>
+
+  <!-- Script Output -->
+  <div class="out" id="out"></div>
+</div>
+
+<script>
+// ─── Configuration ─────────────────────────────────────────────────────────
+const CFG = {
+  get supaUrl() { return localStorage.getItem('supaUrl') || ''; },
+  set supaUrl(v) { localStorage.setItem('supaUrl', v); },
+  get supaKey() { return localStorage.getItem('supaKey') || ''; },
+  set supaKey(v) { localStorage.setItem('supaKey', v); },
+  get funcUrl() { return localStorage.getItem('funcUrl') || ''; },
+  set funcUrl(v) { localStorage.setItem('funcUrl', v); },
+  get configured() { return !!(this.supaUrl && this.supaKey && this.funcUrl); }
+};
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function sk(v){ document.getElementById('kw').value=v; document.getElementById('kw').focus(); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setP(n){ document.getElementById('pbar').style.width=n+'%'; }
+function setM(m){ document.getElementById('ltxt').textContent=m; }
+
+function cp(text,btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copied!'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('ok'); },2000);
+  });
+}
+
+function timeAgo(dateStr){
+  const d = new Date(dateStr);
+  const s = Math.floor((Date.now() - d.getTime()) / 1000);
+  if(s < 60) return 'just now';
+  if(s < 3600) return Math.floor(s/60) + 'm ago';
+  if(s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+// ─── Settings Modal ────────────────────────────────────────────────────────
+function openSettings(){
+  document.getElementById('supaUrl').value = CFG.supaUrl;
+  document.getElementById('supaKey').value = CFG.supaKey;
+  document.getElementById('funcUrl').value = CFG.funcUrl;
+  document.getElementById('settingsModal').classList.add('on');
+}
+
+function closeSettings(){
+  document.getElementById('settingsModal').classList.remove('on');
+}
+
+function saveSettings(){
+  CFG.supaUrl = document.getElementById('supaUrl').value.trim();
+  CFG.supaKey = document.getElementById('supaKey').value.trim();
+  CFG.funcUrl = document.getElementById('funcUrl').value.trim();
+  closeSettings();
+  updateSetupUI();
+  if(CFG.configured) loadHistory();
+}
+
+function updateSetupUI(){
+  const el = document.getElementById('setupPrompt');
+  el.style.display = CFG.configured ? 'none' : 'block';
+}
+
+// ─── History ───────────────────────────────────────────────────────────────
+async function loadHistory(){
+  if(!CFG.configured) return;
+  const el = document.getElementById('hist');
+  try {
+    const res = await fetch(`${CFG.supaUrl}/rest/v1/scripts?select=id,title,keyword,created_at&order=created_at.desc&limit=10`, {
+      headers: { 'apikey': CFG.supaKey, 'Authorization': `Bearer ${CFG.supaKey}` }
+    });
+    if(!res.ok) throw new Error('Failed to load history');
+    const items = await res.json();
+    if(!items || items.length === 0){ el.classList.remove('on'); return; }
+    let h = `<div class="slbl">📋 Recent scripts</div>`;
+    items.forEach(item => {
+      h += `<div class="hist-item" onclick="loadScript('${item.id}')">
+        <span class="hist-icon">🎬</span>
+        <div class="hist-info">
+          <div class="hist-title">${esc(item.title || item.keyword)}</div>
+          <div class="hist-meta">${esc(item.keyword)} · ${timeAgo(item.created_at)}</div>
+        </div>
+        <span style="color:var(--muted);font-size:11px">→</span>
+      </div>`;
+    });
+    el.innerHTML = h;
+    el.classList.add('on');
+  } catch(e){ el.classList.remove('on'); }
+}
+
+async function loadScript(id){
+  if(!CFG.configured) return;
+  try {
+    const res = await fetch(`${CFG.supaUrl}/rest/v1/scripts?id=eq.${id}&limit=1`, {
+      headers: { 'apikey': CFG.supaKey, 'Authorization': `Bearer ${CFG.supaKey}` }
+    });
+    if(!res.ok) throw new Error('Failed to load script');
+    const items = await res.json();
+    if(items && items[0]) {
+      setP(100); setM('Loaded!');
+      setTimeout(() => {
+        document.getElementById('load').classList.remove('on');
+        document.getElementById('gbtn').disabled = false;
+        render(items[0], buildScenes(items[0]));
+      }, 250);
+    }
+  } catch(e){
+    document.getElementById('err').textContent = '⚠ ' + e.message;
+    document.getElementById('err').classList.add('on');
+  }
+}
+
+// ─── Scene prompt templates (built client-side) ────────────────────────────
+function buildScenes(d){
+  const n = d.char_name || 'Sunny', l = d.char_look || 'cute chubby toddler, big brown eyes, yellow outfit';
+  const st = d.setting || 'a bright cheerful room', sm = d.sig_move || 'raises both arms up like sun rays';
+  const a = d.actions || [];
+  const A = (i, fb) => a[i] || fb;
+  const STYLE = 'Cocomelon style, bright saturated colors, smooth 3D cartoon animation, soft rounded shapes, toddler-friendly.';
+
+  return [
+    {n:1, name:'Sunrise intro', ts:'0:00–0:10', sec:'intro',
+     prompt:`3D cartoon. Dark blue starry sky slowly brightens to sky blue. A huge cheerful yellow sun rises over rolling green hills. Colorful flowers pop open one by one. Three bluebirds fly across frame. Camera pans upward slowly. No characters yet. ${STYLE}`,
+     tags:['Camera: slow pan up','Mood: hopeful, fresh','Style: environment only']},
+    {n:2, name:`${n} waves hello`, ts:'0:10–0:20', sec:'intro',
+     prompt:`3D cartoon. ${n} — ${l} — peeks from behind a big cartoon sun and waves both hands at the camera with a huge giggly smile. Sky blue background. Musical notes float around them. Camera holds at medium shot. ${STYLE}`,
+     tags:['Camera: medium shot','Mood: joyful','Key: character intro']},
+    {n:3, name:'Verse 1 — action A', ts:'0:20–0:30', sec:'verse 1',
+     prompt:`3D cartoon. ${n} (${l}) inside ${st}. They ${A(0, 'explore the space with wide curious eyes')}. Face shows pure delight. Camera at child eye level. Warm bright background colors. ${STYLE}`,
+     tags:['Camera: eye level','Mood: curious, excited','Motion: '+A(0,'exploring')]},
+    {n:4, name:'Verse 1 — action B', ts:'0:30–0:40', sec:'verse 1',
+     prompt:`3D cartoon. ${n} (${l}) in ${st}. They ${A(1, 'pick something up with both tiny hands and examine it closely')}. One eyebrow raised in a cheeky expression. They look at camera with an "oops!" face. Pastel warm background. ${STYLE}`,
+     tags:['Camera: close-up','Mood: cheeky, funny','Key: 4th-wall moment']},
+    {n:5, name:'Chorus — signature move', ts:'0:40–0:50', sec:'chorus',
+     prompt:`3D cartoon. ${n} (${l}) faces the camera directly and ${sm}. Big beaming smile, eyes crinkled with joy. Colorful musical notes and small stars swirl around them. Camera slowly zooms toward their face. Background flashes warm golden. ${STYLE}`,
+     tags:['Camera: slow zoom in','Mood: triumphant','Key: viral moment — kids copy this']},
+    {n:6, name:'Chorus — full celebration', ts:'0:50–1:00', sec:'chorus',
+     prompt:`3D cartoon. ${n} (${l}) spins once in a full circle laughing, then ${sm} again. Confetti bursts from offscreen. A friendly parent figure appears beside them doing the same move. Wide shot showing both characters. ${STYLE}`,
+     tags:['Camera: wide shot','Mood: celebratory','Motion: spin + signature move']},
+    {n:7, name:'Verse 2 — action C', ts:'1:00–1:10', sec:'verse 2',
+     prompt:`3D cartoon. ${n} (${l}) in ${st}. They ${A(2, 'concentrate with tongue out the side of their mouth')} doing an important task carefully. Slow insert close-up showing the action in detail. Educational moment. ${STYLE}`,
+     tags:['Camera: medium + insert','Mood: focused, learning','Key: educational beat']},
+    {n:8, name:'Verse 2 — action D', ts:'1:10–1:20', sec:'verse 2',
+     prompt:`3D cartoon. ${n} (${l}) in ${st}. They ${A(3, 'clap their hands and bounce with excitement after succeeding')}. Happy sparkle particles burst around them. Parent figure claps along from offscreen. ${STYLE}`,
+     tags:['Camera: medium shot','Mood: proud, happy','Motion: clapping, bouncing']},
+    {n:9, name:'Chorus repeat + teddy joins', ts:'1:20–1:30', sec:'chorus',
+     prompt:`3D cartoon. ${n} (${l}) does the signature move (${sm}) again. In the background a stuffed teddy bear on a shelf appears to have its arms up in the same pose — subtle background comedy. Small bird on windowsill bobs its head to the beat. ${STYLE}`,
+     tags:['Camera: medium shot','Mood: warm, familiar','Key: background comedy']},
+    {n:10, name:'Bridge — silly wiggle dance', ts:'1:30–1:40', sec:'bridge',
+     prompt:`3D cartoon. ${n} (${l}) plus a parent and an older sibling do a silly group wiggle dance — hips side to side, jazz hands, big goofy grins. A fluffy orange cartoon cat walks through frame and accidentally wiggles too. Close-up on cat's indignant face. ${STYLE}`,
+     tags:['Camera: wide then cat close-up','Mood: hilarious, silly','Key: shareable cat comedy']},
+    {n:11, name:'Bridge — belly laugh', ts:'1:40–1:50', sec:'bridge',
+     prompt:`3D cartoon. ${n} (${l}) lying on a soft rug laughing uncontrollably, legs kicking in the air, tiny fists clenched with joy. Parent leans over tickling their tummy. Overhead camera angle looking down. Tears of laughter at corners of big cartoon eyes. ${STYLE}`,
+     tags:['Camera: overhead angle','Mood: pure joy','Key: contagious laughter moment']},
+    {n:12, name:'Final chorus — golden goodbye', ts:'1:50–2:00', sec:'outro',
+     prompt:`3D cartoon. ${n} (${l}) standing at a sunny front porch, whole family behind them. Golden morning light. They do the signature move (${sm}) slowly and peacefully. Camera pulls all the way back to show a colorful cartoon neighborhood. Butterflies fly past. ${STYLE}`,
+     tags:['Camera: slow aerial pullback','Mood: warm, resolved','Key: emotional payoff']},
+    {n:13, name:'Wave goodbye', ts:'2:00–2:10', sec:'outro',
+     prompt:`3D cartoon. Close-up portrait of ${n} (${l}) on a sky-blue background. They wave both tiny hands enthusiastically at the camera, mouthing "bye byeeee!" Musical notes float around them. Sparkle stars appear around their head. Warmest smile. ${STYLE}`,
+     tags:['Camera: portrait close-up','Mood: warm farewell','Key: subscribe hook']},
+  ];
+}
+
+// ─── Render ────────────────────────────────────────────────────────────────
+const PCLS = ['pa','pb','pc','pd','pe'];
+
+function scColor(sec){
+  const s = (sec||'').toLowerCase();
+  if(s.includes('chorus')) return {dot:'dc', lbl:'lc', nbg:'background:#FEF3C7;color:#78350F'};
+  if(s.includes('verse'))  return {dot:'dv', lbl:'lv', nbg:'background:#DBEAFE;color:#1E3A5F'};
+  if(s.includes('bridge')) return {dot:'db', lbl:'lb', nbg:'background:#D1FAE5;color:#064E3B'};
+  if(s.includes('outro'))  return {dot:'do', lbl:'lo', nbg:'background:#FCE7F3;color:#831843'};
+  return {dot:'di', lbl:'li', nbg:'background:#EDE9FE;color:#3B0764'};
+}
+
+function tagCls(t){
+  const l = (t||'').toLowerCase();
+  if(l.startsWith('cam'))    return 'tcam';
+  if(l.startsWith('mood'))   return 'tmood';
+  if(l.startsWith('motion')||l.startsWith('move')) return 'tmotion';
+  return 'tkey';
+}
+
+function render(d, scenes){
+  const anchor = '3D cartoon animation, Cocomelon-style, soft rounded characters, big expressive eyes, bright saturated colors, cheerful pastel backgrounds, smooth Pixar-quality lighting, toddler-friendly, no sharp edges, bouncy playful motion';
+  let h = '';
+
+  // anchor
+  h += `<div class="slbl">Style anchor — paste into every AI video tool</div>
+  <div class="anc">
+    <div class="anc-lbl">Global style reference
+      <button class="cbtn" onclick="cp(document.getElementById('anctxt').textContent,this)">Copy</button>
+    </div>
+    <div class="anc-txt" id="anctxt">${esc(anchor)}</div>
+  </div>`;
+
+  // overview
+  h += `<div class="slbl">Video overview</div>
+  <div class="ov-card">
+    <div class="ov-title">${esc(d.title)}</div>
+    <div class="ov-tag">${esc(d.tagline||'')}</div>
+    <div class="pills">`;
+  const pp = [d.runtime, d.theme, d.bpm && d.bpm+' BPM', d.key, d.char_name && 'Lead: '+d.char_name].filter(Boolean);
+  pp.forEach((p,i) => { h += `<span class="pl ${PCLS[i%PCLS.length]}">${esc(p)}</span>`; });
+  h += `</div></div>`;
+
+  // character
+  h += `<div class="slbl">Main character</div>
+  <div class="char-card">
+    <div class="avatar">${esc(d.char_emoji||'🧒')}</div>
+    <div>
+      <div class="cname">${esc(d.char_name||'')}</div>
+      <div class="cdesc">${esc(d.char_look||'')}<br><br><strong>Signature move:</strong> ${esc(d.sig_move||'')}.<br><strong>Setting:</strong> ${esc(d.setting||'')}</div>
+    </div>
+  </div>`;
+
+  // song
+  const songBlocks = [
+    {type:'verse', label:'Verse 1', lyrics:d.verse1||''},
+    {type:'chorus', label:'Chorus', lyrics:d.chorus||''},
+    {type:'verse', label:'Verse 2', lyrics:d.verse2||''},
+    {type:'chorus', label:'Chorus (repeat)', lyrics:d.chorus||''},
+    {type:'verse', label:'Verse 3', lyrics:d.verse3||''},
+    {type:'chorus', label:'Chorus (repeat)', lyrics:d.chorus||''},
+    {type:'bridge', label:'Bridge', lyrics:d.bridge||''},
+    {type:'chorus', label:'Final Chorus', lyrics:d.chorus||''},
+    {type:'outro', label:'Outro', lyrics:d.outro||''},
+  ].filter(b => b.lyrics);
+  if(songBlocks.length){
+    h += `<div class="slbl">Song lyrics</div>`;
+    if(d.bpm||d.key){
+      h += `<div class="sbadges">`;
+      if(d.bpm) h += `<span class="sbdg">${d.bpm} BPM</span>`;
+      if(d.key) h += `<span class="sbdg">${esc(d.key)}</span>`;
+      if(d.style_note) h += `<span class="sbdg">${esc(d.style_note)}</span>`;
+      h += `</div>`;
+    }
+    songBlocks.forEach(b => {
+      const c = scColor(b.type);
+      h += `<div class="sblk">
+        <div class="sblk-h"><div class="dot ${c.dot}"></div><span class="${c.lbl}">${esc(b.label)}</span></div>
+        <div class="lyrics">${esc(b.lyrics)}</div>
+      </div>`;
+    });
+  }
+
+  // scenes
+  h += `<div class="slbl">Scene-by-scene prompts — 10 sec each</div>`;
+  scenes.forEach((s,i) => {
+    const c = scColor(s.sec);
+    const pid = 'p'+i;
+    h += `<div class="sc-card">
+      <div class="sc-head">
+        <div class="sc-num" style="${c.nbg}">${s.n}</div>
+        <div class="sc-tw">
+          <div class="sc-t">${esc(s.name)}</div>
+          <div class="sc-ts">${esc(s.ts)} · ${esc(s.sec)}</div>
+        </div>
+        <button class="cbtn" onclick="cp(document.getElementById('${pid}').textContent,this)">Copy</button>
+      </div>
+      <div class="sc-prompt" id="${pid}">${esc(s.prompt)}</div>
+      <div class="sc-tags">`;
+    (s.tags||[]).forEach(t => { h += `<span class="stag ${tagCls(t)}">${esc(t)}</span>`; });
+    h += `</div></div>`;
+  });
+
+  // thumbnail
+  if(d.thumbnail){
+    h += `<div class="slbl">Thumbnail prompt</div>
+    <div class="th-card">
+      <div class="th-head">
+        <span class="th-lbl">Midjourney / DALL·E / Ideogram</span>
+        <button class="cbtn" onclick="cp(document.getElementById('thp').textContent,this)">Copy</button>
+      </div>
+      <div class="th-body" id="thp">${esc(d.thumbnail)}</div>
+    </div>`;
+  }
+
+  h += `<div class="regen"><button class="rbtn" onclick="gen()">↻ Regenerate</button></div>`;
+
+  const el = document.getElementById('out');
+  el.innerHTML = h;
+  el.classList.add('on');
+}
+
+// ─── Main Generate ─────────────────────────────────────────────────────────
+async function gen(){
+  const kw = document.getElementById('kw').value.trim();
+  if(!kw){ document.getElementById('kw').focus(); return; }
+
+  if(!CFG.configured){
+    const eb = document.getElementById('err');
+    eb.textContent = '⚠ Please configure your Supabase connection first (click the ⚙️ gear icon).';
+    eb.classList.add('on');
+    openSettings();
+    return;
+  }
+
+  document.getElementById('err').classList.remove('on');
+  const out = document.getElementById('out');
+  out.classList.remove('on'); out.innerHTML = '';
+  document.getElementById('load').classList.add('on');
+  document.getElementById('gbtn').disabled = true;
+  setP(8); setM('Writing your script…');
+
+  try {
+    setP(30);
+    const res = await fetch(CFG.funcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic: kw })
+    });
+
+    const json = await res.json();
+
+    if(!res.ok || json.error){
+      throw new Error(json.error || `Server error ${res.status}`);
+    }
+
+    if(!json.data){
+      throw new Error('Invalid response from server');
+    }
+
+    setP(75); setM('Building scenes…');
+    const d = json.data;
+    const scenes = buildScenes(d);
+    setP(100); setM('Done!');
+    setTimeout(() => {
+      document.getElementById('load').classList.remove('on');
+      document.getElementById('gbtn').disabled = false;
+      render(d, scenes);
+      loadHistory(); // Refresh history
+    }, 250);
+  } catch(e){
+    document.getElementById('load').classList.remove('on');
+    document.getElementById('gbtn').disabled = false;
+    const eb = document.getElementById('err');
+    eb.textContent = '⚠ ' + e.message;
+    eb.classList.add('on');
+    console.error(e);
+  }
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('kw').addEventListener('keydown', e => { if(e.key==='Enter') gen(); });
+  updateSetupUI();
+  if(CFG.configured) loadHistory();
+});
+</script>
+</body>
+</html>

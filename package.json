@@ -1,0 +1,13 @@
+{
+  "name": "cartoon-video-script-generator",
+  "version": "1.0.0",
+  "description": "AI-powered Cocomelon-style cartoon video script generator with Supabase backend",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve .",
+    "deploy:supabase": "supabase functions deploy generate-script --project-ref your-project-ref"
+  },
+  "keywords": ["cartoon", "video", "script", "generator", "ai", "cocomelon"],
+  "license": "MIT"
+}
